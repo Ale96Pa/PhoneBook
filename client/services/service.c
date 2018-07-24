@@ -1,41 +1,44 @@
 #include "service.h"
 
-//TODO: TUTTI CONTROLLI DEGLI ERRORI
-
 /**
- *
- * @param login
+ * This function is used to start the client and explain the main
+ * instruction
+ * @param login: struct used to do the login
  */
 void welcome(user_login *login)
 {
-    char response[10];
-    printf("%s  ", INSTRUCTION);
+    char response[DIM_SKINNY];  // User response
+
+    printf("%s ", INSTRUCTION);
     fgets(response, DIM_SHORT, stdin);
     response[strcspn(response, "\n")] = 0;
+    // This instruction deletes the "\n" captured with fgets
 
     int compare_lower = strcmp(response, "y");
     int compare_upper = strcmp(response, "Y");
-    if (compare_lower == 0 || compare_upper == 0) {
-        printf("\n");
+    if (compare_lower == 0 || compare_upper == 0)
+    {
+        start_login(login);
+        send_credentials(login, NULL, "LOGIN");
     } else {
-        printf("logout\n");
-        exit(0);
+        printf("LOGOUT: see you soon!\n");
+        exit(EXIT_SUCCESS);
     }
-
-    start_login(login);
-    send_credentials(login, NULL, "LOGIN");
-
 }
 
 /**
- *
- * @param user
+ * This function sends the credentials of login or registration
+ * (depending on instruction) to the server
+ * @param user: struct with user credential
+ * @param permissions: struct with user permissions
+ * @param method: LOGIN or REGISTER
  */
-void send_credentials(user_login *user, user_permissions *permissions, char *method)
+int send_credentials(user_login *user, user_permissions *permissions, char *method)
 {
+    char message[DIM_LONG];                                 // Message to sent
+    char value_insert[DIM_SHORT], value_search[DIM_SHORT];  // Values of permissions
     int isLogin = strcmp(method, "LOGIN");
     int isRegister = strcmp(method, "REGISTER");
-    char message[DIM_LONG], value_insert[DIM_SHORT], value_search[DIM_SHORT];
     memset(message, 0, DIM_LONG);
 
     if(isLogin == 0)
@@ -77,29 +80,35 @@ void send_credentials(user_login *user, user_permissions *permissions, char *met
     }
     else
     {
-        printf("ERROR\n");
-        //ERROR
+        fprintf(stderr, "Error in send_credential: 303 BAD REQUEST\n");
+        return FAILURE;
     }
-    //TODO: invia al server
 
+    //TODO: invia al server
     printf("\n%s\n", message);
+
+    return SUCCESS;
 }
 
 /**
- *
+ * This function controls the registration of a user and it interfaces
+ * itself with user
+ * @param user: struct in which save credentials
+ * @param permissions: struct in which save permissions
  */
 void register_user(user_login *user, user_permissions *permissions)
 {
-    char response_search[10];
-    char response_insert[10];
+    char response_search[DIM_SKINNY];       // Permission to search
+    char response_insert[DIM_SKINNY];       // Permission to insert
     memset(user->username, 0, DIM_SHORT);
     memset(user->password, 0, DIM_SHORT);
     memset(user->email, 0, DIM_MEDIUM);
 
-    printf("\nREGISTRATION: insert your data\n");
+    printf("*** REGISTRATION: insert your data ***\n");
     printf("Insert username: ");
     fgets(user->username, DIM_SHORT, stdin);
     user->username[strcspn(user->username, "\n")] = 0;
+    // This instruction deletes the "\n" captured with fgets
 
     printf("Insert password: ");
     fgets(user->password, DIM_SHORT, stdin);
@@ -133,38 +142,41 @@ void register_user(user_login *user, user_permissions *permissions)
         permissions->can_insert = -1;
     }
 
-    send_credentials(user, permissions, "REGISTER");
+    if(send_credentials(user, permissions, "REGISTER") == -1)
+        fprintf(stderr, "Error in register_user: DATA NOT SENT\n");
 }
 
 /**
- * Function in case the user is not logged for bad credentials or because he isn't registered
+ * This function controls the case when a user in not logged after a login
+ * @param login: struct in which save credentials
+ * @param permissions: struct in which save permissions
  */
 void not_logged(user_login *login, user_permissions *permissions)
 {
-    char response[10];
-    printf("%s  ", NOT_LOGGED);
+    char response[DIM_SKINNY];      // Response of user
 
+    printf("%s  ", NOT_LOGGED);
     fgets(response, DIM_SHORT, stdin);
     response[strcspn(response, "\n")] = 0;
 
     int compare_lower = strcmp(response, "y");
     int compare_upper = strcmp(response, "Y");
-    if (compare_lower == 0 || compare_upper == 0) {
+    if (compare_lower == 0 || compare_upper == 0)
         register_user(login, permissions);
-    } else {
+    else
         welcome(login);
-    }
 }
 
 /**
- * Function used to send to the server the record to add
+ * This function asks to the user the data to insert in the phone-book
+ * and sends the message to the server
+ * @param contact: struct in which save data to send to the server
  */
 void insert_contact(record_db *contact)
 {
-    char message[DIM_LONG];
-    char real_number[DIM_SHORT];
+    char message[DIM_LONG];         // Message to send to the server
 
-    printf("INSERT a new contact writing the field one by one\n");
+    printf("*** INSERT a new contact writing the field one by one ***\n");
 
     printf("Name:  ");
     fgets(contact->name, sizeof(contact->name), stdin);
@@ -202,8 +214,8 @@ void insert_contact(record_db *contact)
     strcat(message, contact->lastname);
     strcat(message, "\n");
     strcat(message, "Number: ");
-    remove_spaces(real_number, contact->number);
-    strcat(message, real_number);
+    remove_spaces(contact->number, contact->number);
+    strcat(message, contact->number);
     strcat(message, "\n");
     strcat(message, "Type: ");
     strcat(message, contact->type);
@@ -212,21 +224,22 @@ void insert_contact(record_db *contact)
     strcat(message, contact->city);
     strcat(message, "\n");
 
-
     //todo: invia al server
     printf("\n%s\n", message);
 }
 
 /**
- * Function used to send to the server the element to do a search
+ * This functions asks the user the element for the research and
+ * sends the message to the server
+ * @param search: struct that represents user research
  */
 void search_contact(research *search)
 {
-    char response[10];
-    char research[DIM_MEDIUM];
-    int type_search;
-    char *endptr;
-    char message[DIM_LONG];
+    char response[DIM_SKINNY];      // User response
+    char research[DIM_MEDIUM];      // User research
+    int type_search;                // Field to search
+    char *endptr;                   // Pointer for strtol functions
+    char message[DIM_LONG];         // Message to sent to server
 
 retry:
     printf("Based on what you want to research?\n"
@@ -236,7 +249,7 @@ retry:
 
     switch (type_search) {
         case 0:
-            printf("LOGOUT\n");
+            printf("LOGOUT: see you soon!\n");
             exit(SUCCESS);
         case 1:
             printf("Insert NAME:  ");
@@ -251,12 +264,12 @@ retry:
         case 3:
             printf("Insert PHONE NUMBER:  ");
             fgets(research, DIM_MEDIUM, stdin);
-            sprintf(search->field, "%s", "Phone number");
+            sprintf(search->field, "%s", "Number");
             break;
         case 4:
             printf("Insert NUMBER TYPE:  ");
             fgets(research, DIM_MEDIUM, stdin);
-            sprintf(search->field, "%s", "Number type");
+            sprintf(search->field, "%s", "Type");
             break;
         case 5:
             printf("Insert CITY:  ");
@@ -284,72 +297,75 @@ retry:
     strcat(message, "\n");
 
     //todo: invia al server
-    //TODO: funzione che visualizza risultato
     printf("\n%s\n", message);
 }
 
-
 /**
- * Basing on permission, this function start the possible actions
- * @param user
- * @param permissions
+ * This funtion asks the user what does he want to do, based
+ * on his permissions
+ * @param permissions: user permissions
  */
 void action_from_permission(user_permissions *permissions)
 {
-    char response[10];
-    record_db *contact = malloc(sizeof(record_db));
-    research *search = malloc(sizeof(research));
+    char response[DIM_SKINNY];                          // User response
+    record_db *contact = malloc(sizeof(record_db));     // Struct used for insert
+    research *search = malloc(sizeof(research));        // Struct used for search
 
-    //todo: PARSA STRINGA DEL SERVER PER VEDERE PERMISSIONS
-
+    // User has ALL permissions
     if(permissions->can_search != -1 && permissions->can_insert != -1)
     {
         printf(PERMISSION_ALL);
         fgets(response, DIM_SHORT, stdin);
         response[strcspn(response, "\n")] = 0;
+        // This instruction deletes the "\n" captured with fgets
 
         if(strcmp(response, "1") == 0)
-        {
             insert_contact(contact);
-        }
         else if (strcmp(response, "2") == 0)
-        {
             search_contact(search);
-        } else {
-            printf("LOGOUT\n");
+        else {
+            printf("LOGOUT: see you soon!\n");
+            free(contact);
+            free(search);
             exit(SUCCESS);
         }
     }
+
+    // User can only INSERT
     if(permissions->can_insert != -1 && permissions->can_search == -1)
     {
         printf(PERMISSION_ADD);
         fgets(response, DIM_SHORT, stdin);
         response[strcspn(response, "\n")] = 0;
+
         int compare_lower_insert = strcmp(response, "y");
         int compare_upper_insert = strcmp(response, "Y");
-        if (compare_lower_insert == 0 || compare_upper_insert == 0) {
+        if (compare_lower_insert == 0 || compare_upper_insert == 0)
             insert_contact(contact);
-        } else {
-            printf("LOGOUT\n");
+        else {
+            printf("LOGOUT: see you soon!\n");
+            free(contact);
+            free(search);
             exit(SUCCESS);
         }
     }
+
+    // User can only SEARCH
     if(permissions->can_insert == -1 && permissions->can_search != -1)
     {
         printf(PERMISSION_SEARCH);
         fgets(response, DIM_SHORT, stdin);
         response[strcspn(response, "\n")] = 0;
+
         int compare_lower_search = strcmp(response, "y");
         int compare_upper_search = strcmp(response, "Y");
-        if (compare_lower_search == 0 || compare_upper_search == 0) {
+        if (compare_lower_search == 0 || compare_upper_search == 0)
             search_contact(search);
-        } else {
-            printf("LOGOUT\n");
+        else {
+            printf("LOGOUT: see you soon!\n");
+            free(contact);
+            free(search);
             exit(SUCCESS);
         }
     }
-
-    //todo: fare le free
 }
-
-//TODO: fare funzione che visualizza risultato in base al protocollo

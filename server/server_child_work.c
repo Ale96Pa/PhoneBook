@@ -2,7 +2,7 @@
 
 #define splitter "\n"
 
-void child_work()
+void child_work(int sockfd)
 {
     char message[DIM_LONG], restore[DIM_LONG];
     char *proto, *method;
@@ -11,17 +11,21 @@ void child_work()
     record_db *data = malloc(sizeof(record_db));
     researcher *research = malloc(sizeof(researcher));
 
-    strcpy(message, "User Protocol\n"
-                    "Request-method: LOGIN\n"
-                    "Username: ale96\n"
-                    "Password: palma");
-    strcpy(restore, message);
-
-    proto = strtok(restore, splitter);
-    method = strtok(NULL, splitter);
+/*
+    strcpy(message, "Operation Protocol\n"
+                    "Request-method: SEARCH\n"
+                    "Field: Number\n"
+                    "Content-search: 32");
+*/
 
     for(;;)
     {
+        //TODO: PRENDI QUELLO IN sockfd  E METTILO IN message
+        strcpy(restore, message);
+
+        proto = strtok(restore, splitter);
+        method = strtok(NULL, splitter);
+
         //Receive message for login in the socket
         if(strcmp(method, "Request-method: LOGIN") == 0)
         {

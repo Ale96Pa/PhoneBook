@@ -1,3 +1,4 @@
+#define DIM_SKINNY 5
 #define DIM_SHORT 64
 #define DIM_MEDIUM 256
 #define DIM_LONG 2048

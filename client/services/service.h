@@ -18,8 +18,7 @@ typedef struct research {
 void welcome(user_login *login);
 void not_logged(user_login *registration, user_permissions *permissions);
 void register_user(user_login *user, user_permissions *permissions);
-
-void send_credentials(user_login *user, user_permissions *permissions, char *method);
+int send_credentials(user_login *user, user_permissions *permissions, char *method);
 
 void action_from_permission(user_permissions *permissions);
 void insert_contact(record_db *contact);

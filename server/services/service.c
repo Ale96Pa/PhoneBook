@@ -90,7 +90,7 @@ void search_records(char *column, char *research)
     strcat(message, "\n");
     strcat(message, PROT_OPER_SEARCH);
     strcat(message, "\n");
-    strcat(message, "Number record: ");
+    strcat(message, "Number-record: ");
     sprintf(number, "%d", num);
     strcat(message, number);
     strcat(message, "\n\n");

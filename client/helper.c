@@ -1,5 +1,10 @@
 #include "basic.h"
 
+/**
+ * This function is used to remove spaces from a string
+ * @param str_trimmed: string cleaned
+ * @param str_untrimmed: string to clean
+ */
 void remove_spaces(char* restrict str_trimmed, const char* restrict str_untrimmed)
 {
     while (*str_untrimmed != '\0')
@@ -14,8 +19,21 @@ void remove_spaces(char* restrict str_trimmed, const char* restrict str_untrimme
     *str_trimmed = '\0';
 }
 
+
+ssize_t secure_read()
+{
+
+}
+
+
+ssize_t secure_write()
+{
+
+}
+
+
 /**
- *
+ * This function is used to read a line
  * @param sockd
  * @param vptr
  * @param maxlen
@@ -50,7 +68,7 @@ ssize_t read_line(int sockd, void *vptr, size_t maxlen)
 
 
 /**
- *
+ * This function is used to write a line
  * @param sockd
  * @param vptr
  * @param n
