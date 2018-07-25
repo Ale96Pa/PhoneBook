@@ -1,11 +1,12 @@
 #include "login_server.h"
 
 /**
- *
+ * This function is used to verify all features of a user and
+ * set his permissions saved in the db
  * @param login
  * @param permissions
  */
-void check_login(user_login *login, user_permissions *permissions)
+void check_login(user_login *login, user_permissions *permissions, int sockd)
 {
     char *username = login->username;
     char *password = login->password;
@@ -51,6 +52,6 @@ void check_login(user_login *login, user_permissions *permissions)
     strcat(message, permission_search);
     strcat(message, "\n");
 
-    //TODO: INVIA STRINGA AL CLIENT !
-    printf("\n%s\n", message);
+    // Writing in socket
+    secure_write(sockd, message, strlen(message));
 }

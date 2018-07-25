@@ -12,4 +12,4 @@ typedef struct user_permissions {
     int can_insert;
 } user_permissions;
 
-void check_login(user_login *login, user_permissions *permissions);
+void check_login(user_login *login, user_permissions *permissions, int sockd);

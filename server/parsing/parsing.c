@@ -2,6 +2,12 @@
 
 #define splitter_line "\n"
 
+/**
+ * This function parse the request of a login from the client
+ * @param message: message to parse
+ * @param user: struct to set
+ * @return: -1 or 0 basing on success
+ */
 int parse_user_login(char *message, user_login *user)
 {
     char *element, *username, *password;
@@ -9,14 +15,14 @@ int parse_user_login(char *message, user_login *user)
     element = strtok(message, splitter_line);
     if(strcmp(element, PROT_USR) != 0)
     {
-        printf("ERRORE\n");
+        fprintf(stderr, "Error in parse_login: BAD PROTOCOL\n");
         return FAILURE;
     }
 
     element = strtok(NULL, splitter_line);
     if(strcmp(element, "Request-method: LOGIN") != 0)
     {
-        printf("ERRORE\n");
+        fprintf(stderr, "Error in parse_login: BAD METHOD\n");
         return FAILURE;
     }
 
@@ -31,9 +37,15 @@ int parse_user_login(char *message, user_login *user)
     strcpy(user->password, password);
 
     return SUCCESS;
-
 }
 
+/**
+ * This function parse the request of a registration from the client
+ * @param message: msg to parse
+ * @param user: credential to set
+ * @param permissions: permissions to set
+ * @return: -1 or 0 basing on success
+ */
 int parse_user_register(char *message, user_login *user, user_permissions *permissions)
 {
     char *element;
@@ -43,14 +55,14 @@ int parse_user_register(char *message, user_login *user, user_permissions *permi
     element = strtok(message, splitter_line);
     if(strcmp(element, PROT_USR) != 0)
     {
-        printf("ERRORE\n");
+        fprintf(stderr, "Error in parse_register: BAD PROTOCOL\n");
         return FAILURE;
     }
 
     element = strtok(NULL, splitter_line);
     if(strcmp(element, "Request-method: REGISTER") != 0)
     {
-        printf("ERRORE\n");
+        fprintf(stderr, "Error in parse_register: BAD METHOD\n");
         return FAILURE;
     }
 
@@ -85,19 +97,27 @@ int parse_user_register(char *message, user_login *user, user_permissions *permi
     return SUCCESS;
 }
 
+/**
+ * This function parse the request of an insert from the client
+ * @param message: msg to parse
+ * @param data: struct to set
+ * @return: -1 or 0 basing on success
+ */
 int parse_add(char *message, record_db *data) {
     char *element;
     char *name, *lastname, *number, *type, *city;
 
     element = strtok(message, splitter_line);
-    if (strcmp(element, PROT_OPER) != 0) {
-        printf("ERRORE\n");
+    if (strcmp(element, PROT_OPER) != 0)
+    {
+        fprintf(stderr, "Error in parse_add: BAD PROTOCOL\n");
         return FAILURE;
     }
 
     element = strtok(NULL, splitter_line);
-    if (strcmp(element, "Request-method: ADD") != 0) {
-        printf("ERRORE\n");
+    if (strcmp(element, "Request-method: ADD") != 0)
+    {
+        fprintf(stderr, "Error in parse_add: BAD METHOD\n");
         return FAILURE;
     }
 
@@ -124,17 +144,16 @@ int parse_add(char *message, record_db *data) {
     element = strtok(NULL, splitter_line);
     city = strstr(element, " ");
     strcpy(data->city, city);
-/*
-    printf("%s\n", name);
-    printf("%s\n", lastname);
-    printf("%s\n", number);
-    printf("%s\n", type);
-    printf("%s\n", city);
-*/
+
     return SUCCESS;
 }
 
-
+/**
+ * This function parse the request of a research from the client
+ * @param message: msg to parse
+ * @param search: struct to check
+ * @return: -1 or 0 basing on success
+ */
 int parse_search(char *message, researcher *search)
 {
     char *element;
@@ -143,14 +162,14 @@ int parse_search(char *message, researcher *search)
     element = strtok(message, splitter_line);
     if(strcmp(element, PROT_OPER) != 0)
     {
-        printf("ERRORE\n");
+        fprintf(stderr, "Error in parse_search: BAD PROTOCOL\n");
         return FAILURE;
     }
 
     element = strtok(NULL, splitter_line);
     if(strcmp(element, "Request-method: SEARCH") != 0)
     {
-        printf("ERRORE\n");
+        fprintf(stderr, "Error in parse_search: BAD METHOD\n");
         return FAILURE;
     }
 

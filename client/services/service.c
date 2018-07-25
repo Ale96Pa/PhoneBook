@@ -53,6 +53,7 @@ int send_credentials(user_login *user, user_permissions *permissions, char *meth
         strcat(message, "Password: ");
         strcat(message, user->password);
         strcat(message, "\n");
+
     }
     else if (isRegister == 0)
     {
@@ -87,6 +88,10 @@ int send_credentials(user_login *user, user_permissions *permissions, char *meth
     // Writing in the socket
     secure_write(sockd, message, strlen(message));
 
+ /*   char buf[DIM_LONG];
+    secure_read(sockd, buf, DIM_LONG);
+    printf("buf: %s\n", buf);
+*/
     return SUCCESS;
 }
 

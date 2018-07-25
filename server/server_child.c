@@ -6,38 +6,47 @@
  */
 pid_t child_make(int i, int listensd, int addrlen)
 {
-    pid_t	pid;
-    void	child_main(int, int, int);
+    pid_t pid;
 
-    if ( (pid = fork()) > 0)
-        return(pid);		/* processo padre */
+    if ((pid = fork()) > 0)
+    {
+        return pid;		// Parent process
+    }
 
-    child_main(i, listensd, addrlen);	/* non ritorna mai */
+    pid = getpid();
+    child_main(listensd, addrlen);
+
+    return pid;
 }
 
-void child_main(int i, int listensd, int addrlen)
+void child_main(int listensd, int addrlen)
 {
     int	connsd;
-    void	web_child(int);
     socklen_t clilen;
     struct sockaddr *cliaddr;
 
-    if ( (cliaddr = (struct sockaddr *)malloc(addrlen)) == NULL) {
-        fprintf(stderr, "errore in malloc");
-        exit(1);
+    if ((cliaddr = (struct sockaddr *)malloc(addrlen)) == NULL)
+    {
+        fprintf(stderr, "Error in malloc\n");
+        exit(EXIT_FAILURE);
     }
 
-    printf("child %ld starting\n", (long) getpid());
-    for ( ; ; ) {
+    for (;;)
+    {
         clilen = addrlen;
-        if ( (connsd = accept(listensd, cliaddr, &clilen)) < 0) {
-            perror("errore in accept");
-            exit(1);
+        if ((connsd = accept(listensd, cliaddr, &clilen)) < 0)
+        {
+            perror("Error in accept");
+            exit(EXIT_FAILURE);
         }
-        child_work(connsd);		/* processa la richiesta */
-        if (close(connsd) == -1) {
-            perror("errore in close");
-            exit(1);
+
+        child_work(connsd);   // Function that works
+
+        if (close(connsd) == -1)
+        {
+            perror("Error in close");
+            exit(EXIT_FAILURE);
         }
+
     }
 }

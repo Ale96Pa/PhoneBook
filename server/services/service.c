@@ -1,6 +1,11 @@
 #include "service.h"
 
-void register_user(user_login *user, user_permissions *permissions)
+/**
+ * This function is used to register a user in the DB
+ * @param user: credential to register
+ * @param permissions: permission to register
+ */
+void register_user(user_login *user, user_permissions *permissions, int sockd)
 {
     int id_searcher, id_adder;
     int exit_code = 0;
@@ -37,12 +42,16 @@ void register_user(user_login *user, user_permissions *permissions)
     strcat(message, "Response: ");
     strcat(message, final_code);
     strcat(message, "\n");
-    //TODO: SEND to client
 
-    printf("\n%s\n", message);
+    // Writing in socket
+    secure_write(sockd, message, strlen(message));
 }
 
-void add_record(record_db *data)
+/**
+ * This function is used to add a record in the Phonebook table of DB
+ * @param data: data to register
+ */
+void add_record(record_db *data, int sockd)
 {
     int ID, exit_code;
     char message[DIM_LONG];
@@ -53,9 +62,11 @@ void add_record(record_db *data)
 
     exit_code = insert_record(data->id, data->name, data->lastname, data->number, data->city, data->type);
     switch (exit_code) {
+
         case -1:
             strcpy(final_code, "300 BAD REQUEST");
             break;
+
         default:
             strcpy(final_code, "200 OK");
             break;
@@ -69,21 +80,27 @@ void add_record(record_db *data)
     strcat(message, "Response: ");
     strcat(message, final_code);
     strcat(message, "\n");
-    //TODO: SEND to client
 
-    printf("\n%s\n", message);
-
+    // Writing in socket
+    secure_write(sockd, message, strlen(message));
 }
 
-//TODO: Aumenta notevolmente la dimensione del messaggio (in proporzione al numero di record)
-void search_records(char *column, char *research)
+/**
+ * This function is used to do a query in the DB to search element
+ * @param column: field in which search
+ * @param research: user input to search
+ */
+void search_records(char *column, char *research, int sockd)
 {
     int num, i;
-    char message[DIM_LONG], number[DIM_SHORT];
-    memset(message, 0, DIM_LONG);
+    char number[DIM_SHORT];
 
     num = count_record(column, research);
     record_db results[num];
+
+    char message[DIM_MEDIUM*num];
+    memset(message, 0, DIM_LONG);
+
     search_record_db(column, research, results);
 
     strcat(message, PROT_OPER);
@@ -114,6 +131,6 @@ void search_records(char *column, char *research)
         strcat(message, "\n\n");
     }
 
-    //TODO: invia al client
-    printf("\n%s\n", message);
+    // Writing in socket
+    secure_write(sockd, message, strlen(message));
 }

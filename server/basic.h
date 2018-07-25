@@ -11,7 +11,6 @@
 void remove_spaces(char *restrict str_trimmed, const char *restrict str_untrimmed);
 ssize_t read_line(int sockd, void *vptr, size_t maxlen);
 ssize_t write_line(int sockd, const void *vptr, size_t n);
+int secure_read(int fd, char *buffer, unsigned long size);
+void secure_write(int fd, char *buffer, unsigned long size);
 
-void my_lock_init(char *pathname);
-void my_lock_wait();
-void my_lock_release();

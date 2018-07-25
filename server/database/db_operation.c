@@ -1,8 +1,6 @@
 #define _GNU_SOURCE
 #include "database.h"
 
-//TODO: QUANDO FAI L'INSERT EVITA DUPLICATI NEL DATABASE
-
 /**
  * This function insert a new user-record in the DB with elements given in input
  * @Param: table, id, username, email, pw
@@ -17,7 +15,7 @@ void insert_user(char *table, int id, char *username, char *pw, char *email)
 
 	// Prepare connection and query
 	connection = open_connection();
-	asprintf(&query, "INSERT INTO %s VALUES('%d','%s','%s','%s');", table, id, username, pw, email);
+	asprintf(&query, "INSERT OR IGNORE INTO %s VALUES('%d','%s','%s','%s');", table, id, username, pw, email);
 	sqlite3_prepare_v2(connection, query, strlen(query), &stmt, NULL);
 	result=sqlite3_step(stmt);
 
@@ -48,7 +46,7 @@ int insert_record(int id, char *name, char *lastname, char *number, char *city, 
 
     // Prepare connection and query
     connection = open_connection();
-	asprintf(&query,"INSERT INTO phonebook VALUES('%d','%s','%s','%s', '%s', '%s');", id, name, lastname, number, city, type);
+	asprintf(&query,"INSERT OR IGNORE INTO phonebook VALUES('%d','%s','%s','%s', '%s', '%s');", id, name, lastname, number, city, type);
 	sqlite3_prepare_v2(connection,query,strlen(query),&stmt,NULL);
 	result=sqlite3_step(stmt);
 
@@ -220,7 +218,11 @@ void search_record_db(char *column, char *user_search, record_db searched[])
 }
 
 /**
- *
+ * This functions do a query in the DB to check the permission
+ * of a user given in input
+ * @param username: username of user
+ * @param password: password of user
+ * @return: -1 or 0 basing on success
  */
 int check_user_adder(char *username, char *password)
 {

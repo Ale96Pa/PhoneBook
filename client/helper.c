@@ -20,7 +20,7 @@ void remove_spaces(char* restrict str_trimmed, const char* restrict str_untrimme
 }
 
 /**
- *
+ * This function is used to do a secure (so FULL) read
  * @param fd
  * @param buffer
  * @param size
@@ -49,7 +49,7 @@ int secure_read(int fd, char *buffer, unsigned long size)
 }
 
 /**
- *
+ * This function is used to do a secure (so FULL) write
  * @param fd
  * @param buffer
  * @param size

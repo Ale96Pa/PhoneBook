@@ -15,7 +15,58 @@ void remove_spaces(char *restrict str_trimmed, const char *restrict str_untrimme
 }
 
 /**
- *
+ * This function is used to do a secure (so FULL) read
+ * @param fd
+ * @param buffer
+ * @param size
+ */
+int secure_read(int fd, char *buffer, unsigned long size)
+{
+    {
+        unsigned long res_r;
+        ssize_t effective_read;
+
+        res_r = 0;
+        while (size > res_r) {
+            effective_read = read(fd, buffer, size - res_r);
+            if (effective_read == -1)
+            {
+                fprintf(stderr, "Error while reading\n");
+                exit(EXIT_FAILURE);
+            }
+            if (effective_read == 0)
+                return res_r;
+            res_r += effective_read;
+            buffer += effective_read;
+        }
+        return res_r;
+    }
+}
+
+/**
+ * This function is used to do a secure (so FULL) write
+ * @param fd
+ * @param buffer
+ * @param size
+ */
+void secure_write(int fd, char *buffer, unsigned long size)
+{
+    ssize_t effective_write;
+
+    while (size > 0) {
+        effective_write = write(fd, buffer, size);
+        if (effective_write == -1)
+        {
+            fprintf(stderr, "Error while writing\n");
+            exit(EXIT_FAILURE);
+        }
+        size -= effective_write;
+        buffer += effective_write;
+    }
+}
+
+/**
+ * This function is used to read a line
  * @param sockd
  * @param vptr
  * @param maxlen
@@ -50,7 +101,7 @@ ssize_t read_line(int sockd, void *vptr, size_t maxlen)
 
 
 /**
- *
+ * This function is used to write a line
  * @param sockd
  * @param vptr
  * @param n

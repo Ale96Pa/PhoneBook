@@ -1,78 +1,7 @@
 #include "client.h"
 
 #define splitter "\n"
-/*
-int main()
-{
 
-    */
-/*
-    welcome(login);
-    int camp = strcmp(login->username, "ale");
-
-    if(camp == 0){
-        not_logged(login, permissions);
-    }
-*/
-/*
-    permissions->can_insert = 0;
-    permissions->can_search = 0;
-    action_from_permission(permissions);
-*/
-/*
-    char message[DIM_LONG], restore[DIM_LONG];
-    char *proto, *method;
-    strcpy(message, "Operation Protocol\n"
-                    "Response-method: SEARCH\n"
-                    "Number-record: 2\n"
-                    "\n"
-                    "Name: Alessandro\n"
-                    "Lastname: Palma\n"
-                    "Number: 328 9874589\n"
-                    "Number-type: mobile\n"
-                    "City: Abruzzo\n"
-                    "\n"
-                    "Name: Ornella\n"
-                    "Lastname: Vanoni\n"
-                    "Number: 3287458962\n"
-                    "Number-type: \n"
-                    "City: Roma");
-
-    strcpy(restore, message);
-
-    proto = strtok(restore, splitter);
-    method = strtok(NULL, splitter);
-
-    for(;;)
-    {
-        if(strcmp(method, "Response-method: LOGIN") == 0)
-        {
-            parse_login_response(message, permissions);
-            printf("%d\n%d\n", permissions->can_insert, permissions->can_search);
-            //break;
-        }
-        else if(strcmp(method, "Response-method: REGISTER") == 0)
-        {
-            int res = parse_register_response(message);
-            printf("%d\n", res);
-            //break;
-        }
-        else if(strcmp(method, "Response-method: ADD") == 0)
-        {
-            int res2 = parse_add_response(message);
-            printf("%d\n", res2);
-            //break;
-        }
-        else if(strcmp(method, "Response-method: SEARCH") == 0)
-        {
-            parse_search_response(message);
-            //break;
-        }
-
-        //TODO: fare le free
-    }
-}
-*/
 int main(int argc, char **argv)
 {
     int       conn_s;                // Connection socket
@@ -131,34 +60,38 @@ int main(int argc, char **argv)
         printf(" ok\n\n");
         servaddr.sin_addr = *((struct in_addr *)he->h_addr);
     }
-/*
+
     //  Connect to the remote echo server
     if (connect(conn_s, (struct sockaddr *) &servaddr, sizeof(servaddr) ) < 0 )
     {
         fprintf(stderr, "Client: error in connect()\n");
         exit(EXIT_FAILURE);
     }
-*/
+
+
     // Start client work
-    conn_s = 0;
 retry:
+    memset(buffer, 0, DIM_LONG);
     welcome(login, conn_s);
 
     // Read response from server
-    //secure_read(conn_s, buffer, DIM_LONG);
-    strcpy(buffer, "User Protocol\n"
+    secure_read(conn_s, buffer, DIM_LONG);
+    printf("BUFFER: %s\n\n", buffer);
+    /*strcpy(buffer, "User Protocol\n"
                    "Response-method: LOGIN\n"
                    "Response: 200 OK\n"
                    "Permission-inset: 0\n"
-                   "Permission-search: 0");
+                   "Permission-search: 0");*/
     if(parse_login_response(buffer, permissions) == -1)
     {
         if(not_logged(login, permissions, conn_s) == 0)
         {
-            //secure_read(conn_s, buffer, DIM_LONG);
-            strcpy(buffer, "User Protocol\n"
+            memset(buffer, 0, DIM_LONG);
+            secure_read(conn_s, buffer, DIM_LONG);
+            printf("BUFFER: %s\n\n", buffer);
+            /*strcpy(buffer, "User Protocol\n"
                            "Response-method: REGISTER\n"
-                           "Response: 200 OK");
+                           "Response: 200 OK");*/
             int value = parse_register_response(buffer);
             if(value != -1)
             {
@@ -176,10 +109,13 @@ retry:
     int value = action_from_permission(permissions, conn_s);
     if(value == 1)
     {
-        strcpy(buffer, "Operation Protocol\n"
+        /*strcpy(buffer, "Operation Protocol\n"
                        "Response-method: ADD\n"
-                       "Response: 200 OK");
-        //secure_read(conn_s, buffer, DIM_LONG);
+                       "Response: 200 OK");*/
+        memset(buffer, 0, DIM_LONG);
+        secure_read(conn_s, buffer, DIM_LONG);
+        printf("BUFFER: %s\n\n", buffer);
+
         if(parse_add_response(buffer) == SUCCESS)
         {
             printf("\nElement added successfully!\n");
@@ -191,7 +127,7 @@ retry:
     }
     else if(value == 2)
     {
-        strcpy(buffer, "Operation Protocol\n"
+        /*strcpy(buffer, "Operation Protocol\n"
                        "Response-method: SEARCH\n"
                        "Number-record: 2\n\n"
                        "Name: aa\n"
@@ -203,8 +139,11 @@ retry:
                        "Lastname: bb\n"
                        "Number: bb\n"
                        "Number-type: bb\n"
-                       "City: bb\n\n");
-        //secure_read(conn_s, buffer, DIM_LONG);
+                       "City: bb\n\n");*/
+        memset(buffer, 0, DIM_LONG);
+        secure_read(conn_s, buffer, DIM_LONG);
+        printf("BUFFER: %s\n\n", buffer);
+
         if(parse_search_response(buffer) == FAILURE)
         {
             fprintf(stderr, "\nError: element not found\n");
