@@ -157,7 +157,7 @@ int parse_search_response(char *message)
 
     record_db data[num_record];        // Array of record_db sent by server
 
-    printf("DATA FOUND\n");
+    printf("\n\nDATA FOUND\n");
     printf("*************************************\n");
     for(i=0; i<num_record; i++)
     {

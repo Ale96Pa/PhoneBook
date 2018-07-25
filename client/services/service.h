@@ -15,11 +15,11 @@ typedef struct research {
     char content[DIM_MEDIUM];
 } research;
 
-void welcome(user_login *login);
-void not_logged(user_login *registration, user_permissions *permissions);
-void register_user(user_login *user, user_permissions *permissions);
-int send_credentials(user_login *user, user_permissions *permissions, char *method);
+void welcome(user_login *login, int sockd);
+int not_logged(user_login *registration, user_permissions *permissions, int sockd);
+void register_user(user_login *user, user_permissions *permissions, int sockd);
+int send_credentials(user_login *user, user_permissions *permissions, char *method, int sockd);
 
-void action_from_permission(user_permissions *permissions);
-void insert_contact(record_db *contact);
-void search_contact(research *search);
+int action_from_permission(user_permissions *permissions, int sockd);
+void insert_contact(record_db *contact, int sockd);
+void search_contact(research *search, int sockd);

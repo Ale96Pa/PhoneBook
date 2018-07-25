@@ -9,7 +9,7 @@ void start_login(user_login *user)
     memset(user->username, 0, DIM_SHORT);
     memset(user->password, 0, DIM_SHORT);
 
-    printf("*** LOGIN INTERFACE ***\n");
+    printf("\n******* LOGIN INTERFACE *******\n");
     printf("Insert username: ");
     fgets(user->username, DIM_SHORT, stdin);
     user->username[strcspn(user->username, "\n")] = 0;

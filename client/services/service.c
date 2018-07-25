@@ -5,7 +5,7 @@
  * instruction
  * @param login: struct used to do the login
  */
-void welcome(user_login *login)
+void welcome(user_login *login, int sockd)
 {
     char response[DIM_SKINNY];  // User response
 
@@ -19,7 +19,7 @@ void welcome(user_login *login)
     if (compare_lower == 0 || compare_upper == 0)
     {
         start_login(login);
-        send_credentials(login, NULL, "LOGIN");
+        send_credentials(login, NULL, "LOGIN", sockd);
     } else {
         printf("LOGOUT: see you soon!\n");
         exit(EXIT_SUCCESS);
@@ -33,7 +33,7 @@ void welcome(user_login *login)
  * @param permissions: struct with user permissions
  * @param method: LOGIN or REGISTER
  */
-int send_credentials(user_login *user, user_permissions *permissions, char *method)
+int send_credentials(user_login *user, user_permissions *permissions, char *method, int sockd)
 {
     char message[DIM_LONG];                                 // Message to sent
     char value_insert[DIM_SHORT], value_search[DIM_SHORT];  // Values of permissions
@@ -84,8 +84,8 @@ int send_credentials(user_login *user, user_permissions *permissions, char *meth
         return FAILURE;
     }
 
-    //TODO: invia al server
-    printf("\n%s\n", message);
+    // Writing in the socket
+    secure_write(sockd, message, strlen(message));
 
     return SUCCESS;
 }
@@ -96,7 +96,7 @@ int send_credentials(user_login *user, user_permissions *permissions, char *meth
  * @param user: struct in which save credentials
  * @param permissions: struct in which save permissions
  */
-void register_user(user_login *user, user_permissions *permissions)
+void register_user(user_login *user, user_permissions *permissions, int sockd)
 {
     char response_search[DIM_SKINNY];       // Permission to search
     char response_insert[DIM_SKINNY];       // Permission to insert
@@ -104,7 +104,7 @@ void register_user(user_login *user, user_permissions *permissions)
     memset(user->password, 0, DIM_SHORT);
     memset(user->email, 0, DIM_MEDIUM);
 
-    printf("*** REGISTRATION: insert your data ***\n");
+    printf("\n******* REGISTRATION: insert your data *******\n");
     printf("Insert username: ");
     fgets(user->username, DIM_SHORT, stdin);
     user->username[strcspn(user->username, "\n")] = 0;
@@ -142,7 +142,7 @@ void register_user(user_login *user, user_permissions *permissions)
         permissions->can_insert = -1;
     }
 
-    if(send_credentials(user, permissions, "REGISTER") == -1)
+    if(send_credentials(user, permissions, "REGISTER", sockd) == -1)
         fprintf(stderr, "Error in register_user: DATA NOT SENT\n");
 }
 
@@ -150,8 +150,9 @@ void register_user(user_login *user, user_permissions *permissions)
  * This function controls the case when a user in not logged after a login
  * @param login: struct in which save credentials
  * @param permissions: struct in which save permissions
+ * @return: 0 if register, 1 if login
  */
-void not_logged(user_login *login, user_permissions *permissions)
+int not_logged(user_login *login, user_permissions *permissions, int sockd)
 {
     char response[DIM_SKINNY];      // Response of user
 
@@ -162,9 +163,14 @@ void not_logged(user_login *login, user_permissions *permissions)
     int compare_lower = strcmp(response, "y");
     int compare_upper = strcmp(response, "Y");
     if (compare_lower == 0 || compare_upper == 0)
-        register_user(login, permissions);
-    else
-        welcome(login);
+    {
+        register_user(login, permissions, sockd);
+        return 0;
+    }
+    else {
+        //welcome(login, sockd);
+        return 1;
+    }
 }
 
 /**
@@ -172,11 +178,11 @@ void not_logged(user_login *login, user_permissions *permissions)
  * and sends the message to the server
  * @param contact: struct in which save data to send to the server
  */
-void insert_contact(record_db *contact)
+void insert_contact(record_db *contact, int sockd)
 {
     char message[DIM_LONG];         // Message to send to the server
 
-    printf("*** INSERT a new contact writing the field one by one ***\n");
+    printf("\n******* INSERT a new contact writing the field one by one *******\n");
 
     printf("Name:  ");
     fgets(contact->name, sizeof(contact->name), stdin);
@@ -224,8 +230,8 @@ void insert_contact(record_db *contact)
     strcat(message, contact->city);
     strcat(message, "\n");
 
-    //todo: invia al server
-    printf("\n%s\n", message);
+    // Writing in the socket
+    secure_write(sockd, message, strlen(message));
 }
 
 /**
@@ -233,7 +239,7 @@ void insert_contact(record_db *contact)
  * sends the message to the server
  * @param search: struct that represents user research
  */
-void search_contact(research *search)
+void search_contact(research *search, int sockd)
 {
     char response[DIM_SKINNY];      // User response
     char research[DIM_MEDIUM];      // User research
@@ -242,6 +248,7 @@ void search_contact(research *search)
     char message[DIM_LONG];         // Message to sent to server
 
 retry:
+    printf("\n******* SEARCH YOUR CONTACT *******\n");
     printf("Based on what you want to research?\n"
            "Name (1), Lastname (2), Phone number (3), Number type (4), City (5)\nExit (0)\n");
     fgets(response, 10, stdin);
@@ -296,16 +303,17 @@ retry:
     strcat(message, research);
     strcat(message, "\n");
 
-    //todo: invia al server
-    printf("\n%s\n", message);
+    // Writing in the socket
+    secure_write(sockd, message, strlen(message));
 }
 
 /**
  * This funtion asks the user what does he want to do, based
  * on his permissions
  * @param permissions: user permissions
+ * @return: 1 for insert, 2 for search
  */
-void action_from_permission(user_permissions *permissions)
+int action_from_permission(user_permissions *permissions, int sockd)
 {
     char response[DIM_SKINNY];                          // User response
     record_db *contact = malloc(sizeof(record_db));     // Struct used for insert
@@ -320,9 +328,15 @@ void action_from_permission(user_permissions *permissions)
         // This instruction deletes the "\n" captured with fgets
 
         if(strcmp(response, "1") == 0)
-            insert_contact(contact);
+        {
+            insert_contact(contact, sockd);
+            return 1;
+        }
         else if (strcmp(response, "2") == 0)
-            search_contact(search);
+        {
+            search_contact(search, sockd);
+            return 2;
+        }
         else {
             printf("LOGOUT: see you soon!\n");
             free(contact);
@@ -332,8 +346,7 @@ void action_from_permission(user_permissions *permissions)
     }
 
     // User can only INSERT
-    if(permissions->can_insert != -1 && permissions->can_search == -1)
-    {
+    if(permissions->can_insert != -1 && permissions->can_search == -1) {
         printf(PERMISSION_ADD);
         fgets(response, DIM_SHORT, stdin);
         response[strcspn(response, "\n")] = 0;
@@ -341,7 +354,10 @@ void action_from_permission(user_permissions *permissions)
         int compare_lower_insert = strcmp(response, "y");
         int compare_upper_insert = strcmp(response, "Y");
         if (compare_lower_insert == 0 || compare_upper_insert == 0)
-            insert_contact(contact);
+        {
+            insert_contact(contact, sockd);
+            return 1;
+        }
         else {
             printf("LOGOUT: see you soon!\n");
             free(contact);
@@ -360,7 +376,10 @@ void action_from_permission(user_permissions *permissions)
         int compare_lower_search = strcmp(response, "y");
         int compare_upper_search = strcmp(response, "Y");
         if (compare_lower_search == 0 || compare_upper_search == 0)
-            search_contact(search);
+        {
+            search_contact(search, sockd);
+            return 2;
+        }
         else {
             printf("LOGOUT: see you soon!\n");
             free(contact);

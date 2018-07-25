@@ -78,11 +78,12 @@ int main(int argc, char **argv)
     int       conn_s;                // Connection socket
     short int port;                  // Port number
     struct    sockaddr_in servaddr;  // Socket address structure
-    char      buffer[MAX_LINE];      // Character buffer
+    char      buffer[DIM_LONG];      // Character buffer
     char     *server_address;        // Holds remote IP address
     char     *server_port;           // Holds remote port
     char     *endptr;                // Pointer for strtol function
     struct	  hostent *he;
+    char method[DIM_SHORT];
     he=NULL;
 
     user_login *login = malloc(sizeof(user_login));
@@ -130,28 +131,88 @@ int main(int argc, char **argv)
         printf(" ok\n\n");
         servaddr.sin_addr = *((struct in_addr *)he->h_addr);
     }
-
+/*
     //  Connect to the remote echo server
     if (connect(conn_s, (struct sockaddr *) &servaddr, sizeof(servaddr) ) < 0 )
     {
         fprintf(stderr, "Client: error in connect()\n");
         exit(EXIT_FAILURE);
     }
-
+*/
     // Start client work
-    /*TODO: LA SOCKET SU CUI AGIRE E' conn_s
-     * 1) Fai il welcome();
-     * 1.1) Fai parse_login();
-     * 2) Leggi risposta del server (salva permissions):
-     *      3) Se NON va a buon fine: fai not_logged()
-     *      3.1) Fai parse_register
-     * 4) Fai action_from_permission
-     * 4.1) Fai due casi:
-     *          se methodo e' ricerca --> parse_search;  -- EXIT
-     *          se methodo w' inserimento --> parse_add; -- EXIT
-     **/
+    conn_s = 0;
+retry:
+    welcome(login, conn_s);
 
-    return EXIT_SUCCESS;
+    // Read response from server
+    //secure_read(conn_s, buffer, DIM_LONG);
+    strcpy(buffer, "User Protocol\n"
+                   "Response-method: LOGIN\n"
+                   "Response: 200 OK\n"
+                   "Permission-inset: 0\n"
+                   "Permission-search: 0");
+    if(parse_login_response(buffer, permissions) == -1)
+    {
+        if(not_logged(login, permissions, conn_s) == 0)
+        {
+            //secure_read(conn_s, buffer, DIM_LONG);
+            strcpy(buffer, "User Protocol\n"
+                           "Response-method: REGISTER\n"
+                           "Response: 200 OK");
+            int value = parse_register_response(buffer);
+            if(value != -1)
+            {
+                printf("\nSuccessful registration!\n");
+                exit(EXIT_SUCCESS);
+            } else {
+                fprintf(stderr, "\nNOT successful registration, try again\n");
+                exit(EXIT_FAILURE);
+            }
+        } else {
+            goto retry;
+        }
+    }
 
+    int value = action_from_permission(permissions, conn_s);
+    if(value == 1)
+    {
+        strcpy(buffer, "Operation Protocol\n"
+                       "Response-method: ADD\n"
+                       "Response: 200 OK");
+        //secure_read(conn_s, buffer, DIM_LONG);
+        if(parse_add_response(buffer) == SUCCESS)
+        {
+            printf("\nElement added successfully!\n");
+            exit(EXIT_SUCCESS);
+        } else {
+            fprintf(stderr, "\nElement NOT added!\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if(value == 2)
+    {
+        strcpy(buffer, "Operation Protocol\n"
+                       "Response-method: SEARCH\n"
+                       "Number-record: 2\n\n"
+                       "Name: aa\n"
+                       "Lastname: aa\n"
+                       "Number: aa\n"
+                       "Number-type: aa\n"
+                       "City: aa\n\n"
+                       "Name: bb\n"
+                       "Lastname: bb\n"
+                       "Number: bb\n"
+                       "Number-type: bb\n"
+                       "City: bb\n\n");
+        //secure_read(conn_s, buffer, DIM_LONG);
+        if(parse_search_response(buffer) == FAILURE)
+        {
+            fprintf(stderr, "\nError: element not found\n");
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        fprintf(stderr, "303 BAD REQUEST\n");
+        exit(EXIT_FAILURE);
+    }
 
 }
