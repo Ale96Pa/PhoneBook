@@ -4,6 +4,9 @@ static size_t nChildren;
 static uint16_t servPort;
 static pid_t *pids;
 
+//TODO: segnali + gestisci chiusura server
+
+
 /**
  * This is the main  function of Server; here we inizialize the connection,
  * finding the socket descriptor to pass to other functions that work.

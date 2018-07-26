@@ -9,7 +9,7 @@ void welcome(user_login *login, int sockd)
 {
     char response[DIM_SKINNY];  // User response
 
-    printf("%s ", INSTRUCTION);
+    printf(YELLOW "%s ", INSTRUCTION RESET);
     fgets(response, DIM_SHORT, stdin);
     response[strcspn(response, "\n")] = 0;
     // This instruction deletes the "\n" captured with fgets
@@ -21,7 +21,7 @@ void welcome(user_login *login, int sockd)
         start_login(login);
         send_credentials(login, NULL, "LOGIN", sockd);
     } else {
-        printf("LOGOUT: see you soon!\n");
+        printf(RED "LOGOUT: see you soon!\n" RESET);
         exit(EXIT_SUCCESS);
     }
 }
@@ -88,10 +88,6 @@ int send_credentials(user_login *user, user_permissions *permissions, char *meth
     // Writing in the socket
     secure_write(sockd, message, strlen(message));
 
- /*   char buf[DIM_LONG];
-    secure_read(sockd, buf, DIM_LONG);
-    printf("buf: %s\n", buf);
-*/
     return SUCCESS;
 }
 
@@ -109,21 +105,21 @@ void register_user(user_login *user, user_permissions *permissions, int sockd)
     memset(user->password, 0, DIM_SHORT);
     memset(user->email, 0, DIM_MEDIUM);
 
-    printf("\n******* REGISTRATION: insert your data *******\n");
-    printf("Insert username: ");
+    printf(CYAN "\n******* REGISTRATION: insert your data *******\n" RESET);
+    printf(CYAN "Insert username: " RESET);
     fgets(user->username, DIM_SHORT, stdin);
     user->username[strcspn(user->username, "\n")] = 0;
     // This instruction deletes the "\n" captured with fgets
 
-    printf("Insert password: ");
+    printf(CYAN "Insert password: " RESET);
     fgets(user->password, DIM_SHORT, stdin);
     user->password[strcspn(user->password, "\n")] = 0;
 
-    printf("Insert email: ");
+    printf(CYAN "Insert email: " RESET);
     fgets(user->email, DIM_MEDIUM, stdin);
     user->email[strcspn(user->email, "\n")] = 0;
 
-    printf("Allow research? (y/n)  ");
+    printf(CYAN "Allow research? (y/n)  " RESET);
     fgets(response_search, DIM_SHORT, stdin);
     response_search[strcspn(response_search, "\n")] = 0;
 
@@ -135,7 +131,7 @@ void register_user(user_login *user, user_permissions *permissions, int sockd)
         permissions->can_search = -1;
     }
 
-    printf("Allow inserting data? (y/n)  ");
+    printf(CYAN "Allow inserting data? (y/n)  " RESET);
     fgets(response_insert, DIM_SHORT, stdin);
     response_insert[strcspn(response_insert, "\n")] = 0;
 
@@ -146,6 +142,7 @@ void register_user(user_login *user, user_permissions *permissions, int sockd)
     } else {
         permissions->can_insert = -1;
     }
+    printf(RESET);
 
     if(send_credentials(user, permissions, "REGISTER", sockd) == -1)
         fprintf(stderr, "Error in register_user: DATA NOT SENT\n");
@@ -161,7 +158,7 @@ int not_logged(user_login *login, user_permissions *permissions, int sockd)
 {
     char response[DIM_SKINNY];      // Response of user
 
-    printf("%s  ", NOT_LOGGED);
+    printf(RED "%s  ", NOT_LOGGED RESET);
     fgets(response, DIM_SHORT, stdin);
     response[strcspn(response, "\n")] = 0;
 
@@ -172,10 +169,8 @@ int not_logged(user_login *login, user_permissions *permissions, int sockd)
         register_user(login, permissions, sockd);
         return 0;
     }
-    else {
-        //welcome(login, sockd);
+    else
         return 1;
-    }
 }
 
 /**
@@ -187,31 +182,32 @@ void insert_contact(record_db *contact, int sockd)
 {
     char message[DIM_LONG];         // Message to send to the server
 
-    printf("\n******* INSERT a new contact writing the field one by one *******\n");
+    printf(CYAN "\n******* INSERT a new contact writing the field one by one *******\n");
 
-    printf("Name:  ");
+    printf(CYAN "Name:  " RESET);
     fgets(contact->name, sizeof(contact->name), stdin);
     contact->name[strcspn(contact->name, "\n")] = 0;
     if(contact->name == NULL)
         strcpy(contact->name, "");
 
-    printf("Lastname:  ");
+    printf(CYAN "Lastname:  " RESET);
     fgets(contact->lastname, sizeof(contact->lastname), stdin);
     contact->lastname[strcspn(contact->lastname, "\n")] = 0;
 
-    printf("Phone number:  ");
+    printf(CYAN "Phone number:  " RESET);
     fgets(contact->number, DIM_SHORT, stdin);
     contact->number[strcspn(contact->number, "\n")] = 0;
     if(contact->number == NULL)
         strcpy(contact->number, "");
 
-    printf("Number type (mobile or landline):  ");
+    printf(CYAN "Number type (mobile or landline):  " RESET);
     fgets(contact->type, DIM_SHORT, stdin);
     contact->type[strcspn(contact->type, "\n")] = 0;
 
-    printf("City:  ");
+    printf(CYAN "City:  " RESET);
     fgets(contact->city, DIM_MEDIUM, stdin);
     contact->city[strcspn(contact->city, "\n")] = 0;
+    printf(RESET);
 
     memset(message, 0, DIM_LONG);
     strcat(message, PROT_OPER);
@@ -253,7 +249,7 @@ void search_contact(research *search, int sockd)
     char message[DIM_LONG];         // Message to sent to server
 
 retry:
-    printf("\n******* SEARCH YOUR CONTACT *******\n");
+    printf(CYAN "\n******* SEARCH YOUR CONTACT *******\n");
     printf("Based on what you want to research?\n"
            "Name (1), Lastname (2), Phone number (3), Number type (4), City (5)\nExit (0)\n");
     fgets(response, 10, stdin);
@@ -261,35 +257,35 @@ retry:
 
     switch (type_search) {
         case 0:
-            printf("LOGOUT: see you soon!\n");
+            printf(RED "LOGOUT: see you soon!\n" RESET);
             exit(SUCCESS);
         case 1:
-            printf("Insert NAME:  ");
+            printf(CYAN "Insert NAME:  " RESET);
             fgets(research, DIM_MEDIUM, stdin);
             sprintf(search->field, "%s", "Name");
             break;
         case 2:
-            printf("Insert LASTNAME:  ");
+            printf(CYAN "Insert LASTNAME:  " RESET);
             fgets(research, DIM_MEDIUM, stdin);
             sprintf(search->field, "%s", "Lastname");
             break;
         case 3:
-            printf("Insert PHONE NUMBER:  ");
+            printf(CYAN "Insert PHONE NUMBER:  " RESET);
             fgets(research, DIM_MEDIUM, stdin);
             sprintf(search->field, "%s", "Number");
             break;
         case 4:
-            printf("Insert NUMBER TYPE:  ");
+            printf(CYAN "Insert NUMBER TYPE:  " RESET);
             fgets(research, DIM_MEDIUM, stdin);
             sprintf(search->field, "%s", "Type");
             break;
         case 5:
-            printf("Insert CITY:  ");
+            printf(CYAN "Insert CITY:  " RESET);
             fgets(research, DIM_MEDIUM, stdin);
             sprintf(search->field, "%s", "City");
             break;
         default:
-            printf("INVALID INSERT!!\nYour insert is not a valid option, insert a number from 0 to 5\n\n");
+            printf(RED "INVALID INSERT!!\nYour insert is not a valid option, insert a number from 0 to 5\n\n" RESET);
             goto retry;
     }
 
@@ -343,7 +339,7 @@ int action_from_permission(user_permissions *permissions, int sockd)
             return 2;
         }
         else {
-            printf("LOGOUT: see you soon!\n");
+            printf(RED "LOGOUT: see you soon!\n" RESET);
             free(contact);
             free(search);
             exit(SUCCESS);
@@ -364,7 +360,7 @@ int action_from_permission(user_permissions *permissions, int sockd)
             return 1;
         }
         else {
-            printf("LOGOUT: see you soon!\n");
+            printf(RED "LOGOUT: see you soon!\n" RESET);
             free(contact);
             free(search);
             exit(SUCCESS);
@@ -386,7 +382,7 @@ int action_from_permission(user_permissions *permissions, int sockd)
             return 2;
         }
         else {
-            printf("LOGOUT: see you soon!\n");
+            printf(RED "LOGOUT: see you soon!\n" RESET);
             free(contact);
             free(search);
             exit(SUCCESS);

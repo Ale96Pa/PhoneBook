@@ -2,6 +2,8 @@
 
 #define splitter "\n"
 
+//TODO: segnali + gestisci chiusura server
+
 int main(int argc, char **argv)
 {
     int       conn_s;                // Connection socket
@@ -75,27 +77,21 @@ retry:
     welcome(login, conn_s);
 
     // Read response from server
-    secure_read(conn_s, buffer, DIM_LONG);
-    printf("BUFFER: %s\n\n", buffer);
-    /*strcpy(buffer, "User Protocol\n"
-                   "Response-method: LOGIN\n"
-                   "Response: 200 OK\n"
-                   "Permission-inset: 0\n"
-                   "Permission-search: 0");*/
-    if(parse_login_response(buffer, permissions) == -1)
+    //secure_read(conn_s, buffer, DIM_LONG);
+    read(conn_s, buffer, DIM_LONG);
+
+    if (parse_login_response(buffer, permissions) == -1)
     {
-        if(not_logged(login, permissions, conn_s) == 0)
+        memset(buffer, 0, DIM_LONG);
+        if (not_logged(login, permissions, conn_s) == 0)
         {
-            memset(buffer, 0, DIM_LONG);
-            secure_read(conn_s, buffer, DIM_LONG);
-            printf("BUFFER: %s\n\n", buffer);
-            /*strcpy(buffer, "User Protocol\n"
-                           "Response-method: REGISTER\n"
-                           "Response: 200 OK");*/
+            //secure_read(conn_s, buffer, DIM_LONG);
+            read(conn_s, buffer, DIM_LONG);
+
             int value = parse_register_response(buffer);
-            if(value != -1)
+            if (value != -1)
             {
-                printf("\nSuccessful registration!\n");
+                printf(GREEN "\nSuccessful registration!\n" RESET);
                 exit(EXIT_SUCCESS);
             } else {
                 fprintf(stderr, "\nNOT successful registration, try again\n");
@@ -106,45 +102,27 @@ retry:
         }
     }
 
+    memset(buffer, 0, DIM_LONG);
     int value = action_from_permission(permissions, conn_s);
-    if(value == 1)
+    if (value == 1)
     {
-        /*strcpy(buffer, "Operation Protocol\n"
-                       "Response-method: ADD\n"
-                       "Response: 200 OK");*/
-        memset(buffer, 0, DIM_LONG);
-        secure_read(conn_s, buffer, DIM_LONG);
-        printf("BUFFER: %s\n\n", buffer);
+        //secure_read(conn_s, buffer, DIM_LONG);
+        read(conn_s, buffer, DIM_LONG);
 
-        if(parse_add_response(buffer) == SUCCESS)
-        {
-            printf("\nElement added successfully!\n");
+        if (parse_add_response(buffer) == SUCCESS) {
+            printf(GREEN "\nElement added successfully!\n" RESET);
             exit(EXIT_SUCCESS);
         } else {
             fprintf(stderr, "\nElement NOT added!\n");
             exit(EXIT_FAILURE);
         }
     }
-    else if(value == 2)
+    else if (value == 2)
     {
-        /*strcpy(buffer, "Operation Protocol\n"
-                       "Response-method: SEARCH\n"
-                       "Number-record: 2\n\n"
-                       "Name: aa\n"
-                       "Lastname: aa\n"
-                       "Number: aa\n"
-                       "Number-type: aa\n"
-                       "City: aa\n\n"
-                       "Name: bb\n"
-                       "Lastname: bb\n"
-                       "Number: bb\n"
-                       "Number-type: bb\n"
-                       "City: bb\n\n");*/
-        memset(buffer, 0, DIM_LONG);
-        secure_read(conn_s, buffer, DIM_LONG);
-        printf("BUFFER: %s\n\n", buffer);
+        //secure_read(conn_s, buffer, DIM_LONG);
+        read(conn_s, buffer, DIM_LONG);
 
-        if(parse_search_response(buffer) == FAILURE)
+        if (parse_search_response(buffer) == FAILURE)
         {
             fprintf(stderr, "\nError: element not found\n");
             exit(EXIT_FAILURE);
@@ -153,5 +131,4 @@ retry:
         fprintf(stderr, "303 BAD REQUEST\n");
         exit(EXIT_FAILURE);
     }
-
 }

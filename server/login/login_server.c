@@ -6,7 +6,7 @@
  * @param login
  * @param permissions
  */
-void check_login(user_login *login, user_permissions *permissions, int sockd)
+int check_login(user_login *login, user_permissions *permissions, int sockd)
 {
     char *username = login->username;
     char *password = login->password;
@@ -54,4 +54,10 @@ void check_login(user_login *login, user_permissions *permissions, int sockd)
 
     // Writing in socket
     secure_write(sockd, message, strlen(message));
+
+    if(check_count <= 0)
+        return FAILURE;
+    else
+        return SUCCESS;
+
 }

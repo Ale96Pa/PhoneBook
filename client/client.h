@@ -8,6 +8,3 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <netdb.h>
-
-#define BACKLOG 10
-#define MAX_LINE 256

@@ -47,6 +47,5 @@ void child_main(int listensd, int addrlen)
             perror("Error in close");
             exit(EXIT_FAILURE);
         }
-
     }
 }

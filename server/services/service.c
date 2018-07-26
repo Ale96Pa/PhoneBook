@@ -25,6 +25,7 @@ void register_user(user_login *user, user_permissions *permissions, int sockd)
         exit_code++;
     }
 
+
     switch (exit_code) {
         case 0:
             strcpy(final_code, "300 BAD REQUEST");
@@ -95,18 +96,23 @@ void search_records(char *column, char *research, int sockd)
     int num, i;
     char number[DIM_SHORT];
 
+    char restore_research[DIM_SHORT];
+    char restore_column[DIM_SHORT];
+    strcpy(restore_column, column);
+    strcpy(restore_research, research);
+
     num = count_record(column, research);
     record_db results[num];
 
-    char message[DIM_MEDIUM*num];
+    search_record_db(restore_column, restore_research, results);
+
+    char message[DIM_LONG*(num+1)];
     memset(message, 0, DIM_LONG);
-
-    search_record_db(column, research, results);
-
     strcat(message, PROT_OPER);
     strcat(message, "\n");
     strcat(message, PROT_OPER_SEARCH);
     strcat(message, "\n");
+
     strcat(message, "Number-record: ");
     sprintf(number, "%d", num);
     strcat(message, number);

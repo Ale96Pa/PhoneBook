@@ -200,7 +200,9 @@ void search_record_db(char *column, char *user_search, record_db searched[])
     }
     do {
         result = sqlite3_step(stmt);
-        if (result == SQLITE_ROW) {
+
+        if (result == SQLITE_ROW)
+        {
             searched[i].id = (int)sqlite3_column_int(stmt, 0);
             strcpy(searched[i].name, (char *)sqlite3_column_text(stmt, 1));
             strcpy(searched[i].lastname, (char *)sqlite3_column_text(stmt, 2));
@@ -209,6 +211,7 @@ void search_record_db(char *column, char *user_search, record_db searched[])
             strcpy(searched[i].type, (char *)sqlite3_column_text(stmt, 5));
             i++;
         }
+
     } while (result == SQLITE_ROW);
 
     // Free resources

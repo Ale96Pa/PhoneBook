@@ -157,15 +157,17 @@ int parse_search_response(char *message)
 
     record_db data[num_record];        // Array of record_db sent by server
 
-    printf("\n\nDATA FOUND\n");
-    printf("*************************************\n");
+    printf(BLUE "\n\nDATA FOUND\n" RESET);
+    printf(BLUE "*************************************\n" RESET);
     for(i=0; i<num_record; i++)
     {
-        printf("Contact %d\n", i+1);
+        printf(RED);
+        printf("Contact %d\n", i+1 );
+        printf(RESET);
         element = strtok(NULL, splitter_line);
         strcpy(data[i].name, strstr(element, " "));
         remove_spaces(data[i].name, data[i].name);
-        printf("Name: %s\n", data[i].name);
+        printf(YELLOW "Name: %s\n", data[i].name);
 
         element = strtok(NULL, splitter_line);
         strcpy(data[i].lastname, strstr(element, " "));
@@ -186,7 +188,7 @@ int parse_search_response(char *message)
         strcpy(data[i].city, strstr(element, " "));
         remove_spaces(data[i].city, data[i].city);
         printf("City: %s\n", data[i].city);
-        printf("*************************************\n");
+        printf(BLUE "*************************************\n" RESET);
     }
 
     exit(EXIT_SUCCESS);
