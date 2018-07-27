@@ -25,27 +25,24 @@ void remove_spaces(char* restrict str_trimmed, const char* restrict str_untrimme
  * @param buffer
  * @param size
  */
-int secure_read(int fd, char *buffer, unsigned long size)
+void secure_read(int fd, char *buffer, unsigned long size)
 {
-    {
-        unsigned long res_r;
-        ssize_t effective_read;
+    int res_r = 0;
+    int effective_read;
 
-        res_r = 0;
-        while (size > res_r) {
-            effective_read = read(fd, buffer, size - res_r);
-            if (effective_read == -1)
-            {
-                fprintf(stderr, "Error while reading\n");
-                exit(EXIT_FAILURE);
-            }
-            if (effective_read == 0)
-                return res_r;
-            res_r += effective_read;
-            buffer += effective_read;
+    while (res_r != effective_read)
+    {
+        if((effective_read = read(fd, buffer, size - res_r)) == -1)
+        {
+            fprintf(stderr, "Error while reading\n");
+            exit(EXIT_FAILURE);
         }
-        return res_r;
+        if (effective_read == 0)
+            return;
+        res_r += effective_read;
+        buffer += effective_read;
     }
+    return;
 }
 
 /**

@@ -21,7 +21,7 @@ void welcome(user_login *login, int sockd)
         start_login(login);
         send_credentials(login, NULL, "LOGIN", sockd);
     } else {
-        printf(RED "LOGOUT: see you soon!\n" RESET);
+        printf(GREEN "LOGOUT: see you soon!\n\n" RESET);
         exit(EXIT_SUCCESS);
     }
 }
@@ -257,7 +257,7 @@ retry:
 
     switch (type_search) {
         case 0:
-            printf(RED "LOGOUT: see you soon!\n" RESET);
+            printf(GREEN "LOGOUT: see you soon!\n\n" RESET);
             exit(SUCCESS);
         case 1:
             printf(CYAN "Insert NAME:  " RESET);
@@ -339,7 +339,7 @@ int action_from_permission(user_permissions *permissions, int sockd)
             return 2;
         }
         else {
-            printf(RED "LOGOUT: see you soon!\n" RESET);
+            printf(GREEN "LOGOUT: see you soon!\n\n" RESET);
             free(contact);
             free(search);
             exit(SUCCESS);
@@ -360,7 +360,7 @@ int action_from_permission(user_permissions *permissions, int sockd)
             return 1;
         }
         else {
-            printf(RED "LOGOUT: see you soon!\n" RESET);
+            printf(GREEN "LOGOUT: see you soon!\n\n" RESET);
             free(contact);
             free(search);
             exit(SUCCESS);
@@ -382,7 +382,7 @@ int action_from_permission(user_permissions *permissions, int sockd)
             return 2;
         }
         else {
-            printf(RED "LOGOUT: see you soon!\n" RESET);
+            printf(GREEN "LOGOUT: see you soon!\n\n" RESET);
             free(contact);
             free(search);
             exit(SUCCESS);

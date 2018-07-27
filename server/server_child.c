@@ -40,7 +40,7 @@ void child_main(int listensd, int addrlen)
             exit(EXIT_FAILURE);
         }
 
-        child_work(connsd);   // Function that works
+        child_work(connsd, cliaddr);   // Function that works
 
         if (close(connsd) == -1)
         {

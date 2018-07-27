@@ -51,7 +51,7 @@ int parse_login_response(char *message, user_permissions *permissions)
 
         return SUCCESS;
     } else {
-        printf("NOT FOUND!\n");
+        printf(RED "404 NOT FOUND\n" RESET);
         permissions->can_insert = -1;
         permissions->can_search = -1;
         return FAILURE;
@@ -157,7 +157,7 @@ int parse_search_response(char *message)
 
     record_db data[num_record];        // Array of record_db sent by server
 
-    printf(BLUE "\n\nDATA FOUND\n" RESET);
+    printf(BLUE "\n\n:::DATA FOUND:::\n" RESET);
     printf(BLUE "*************************************\n" RESET);
     for(i=0; i<num_record; i++)
     {

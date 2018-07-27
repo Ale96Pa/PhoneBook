@@ -77,16 +77,14 @@ retry:
     welcome(login, conn_s);
 
     // Read response from server
-    //secure_read(conn_s, buffer, DIM_LONG);
-    read(conn_s, buffer, DIM_LONG);
+    secure_read(conn_s, buffer, DIM_LONG);
 
     if (parse_login_response(buffer, permissions) == -1)
     {
         memset(buffer, 0, DIM_LONG);
         if (not_logged(login, permissions, conn_s) == 0)
         {
-            //secure_read(conn_s, buffer, DIM_LONG);
-            read(conn_s, buffer, DIM_LONG);
+            secure_read(conn_s, buffer, DIM_LONG);
 
             int value = parse_register_response(buffer);
             if (value != -1)
@@ -106,8 +104,7 @@ retry:
     int value = action_from_permission(permissions, conn_s);
     if (value == 1)
     {
-        //secure_read(conn_s, buffer, DIM_LONG);
-        read(conn_s, buffer, DIM_LONG);
+        secure_read(conn_s, buffer, DIM_LONG);
 
         if (parse_add_response(buffer) == SUCCESS) {
             printf(GREEN "\nElement added successfully!\n" RESET);
@@ -119,8 +116,7 @@ retry:
     }
     else if (value == 2)
     {
-        //secure_read(conn_s, buffer, DIM_LONG);
-        read(conn_s, buffer, DIM_LONG);
+        secure_read(conn_s, buffer, DIM_LONG);
 
         if (parse_search_response(buffer) == FAILURE)
         {

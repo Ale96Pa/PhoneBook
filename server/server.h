@@ -14,4 +14,4 @@
 
 pid_t child_make(int i, int listensd, int addrlen);
 void child_main(int listensd, int addrlen);
-void child_work(int connsd);
+void child_work(int sockfd, struct sockaddr *cliaddr);

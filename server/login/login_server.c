@@ -59,5 +59,4 @@ int check_login(user_login *login, user_permissions *permissions, int sockd)
         return FAILURE;
     else
         return SUCCESS;
-
 }
