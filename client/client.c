@@ -2,11 +2,57 @@
 
 #define splitter "\n"
 
-//TODO: segnali + gestisci chiusura server
+int conn_s; // Connection socket
+
+/**
+ * This function is used to capture different signals
+ * @param signal
+ * @param conn_s
+ */
+void signal_handler(int signal) {
+
+    switch (signal) {
+
+        case SIGHUP:
+            printf(RED "\nSignal SIGHUP received: terminal closing!\n\n" RESET);
+            if ( close(conn_s) < 0 )
+                fprintf(stderr, "Error in close\n");
+            exit(EXIT_FAILURE);
+
+        case SIGINT:
+            printf(RED "\nYou forced quit with signal SIGINT!\n\n" RESET);
+            if ( close(conn_s) < 0 )
+                fprintf(stderr, "Error in close\n");
+            exit(EXIT_FAILURE);
+
+        case SIGQUIT:
+            printf(RED "\nYou forced quit with signal SIGQUIT!\n\n" RESET);
+            if ( close(conn_s) < 0 )
+                fprintf(stderr, "Error in close\n");
+            exit(EXIT_FAILURE);
+
+        case SIGILL:
+            printf(RED "\nSignal SIGILL received: Illegal instruction!\n\n" RESET);
+            if ( close(conn_s) < 0 )
+                fprintf(stderr, "Error in close\n");
+            exit(EXIT_FAILURE);
+
+        case SIGSEGV:
+            printf(RED "\nSignal SIGSEGV received: Server has crashed!\n\n" RESET);
+            if ( close(conn_s) < 0 )
+                fprintf(stderr, "Error in close\n");
+            exit(EXIT_FAILURE);
+
+        case SIGTERM:
+            printf(RED "\nSignal SIGTERM received!\n\n" RESET);
+            if ( close(conn_s) < 0 )
+                fprintf(stderr, "Error in close\n");
+            exit(EXIT_FAILURE);
+    }
+}
 
 int main(int argc, char **argv)
 {
-    int       conn_s;                // Connection socket
     short int port;                  // Port number
     struct    sockaddr_in servaddr;  // Socket address structure
     char      buffer[DIM_LONG];      // Character buffer
@@ -69,6 +115,14 @@ int main(int argc, char **argv)
         fprintf(stderr, "Client: error in connect()\n");
         exit(EXIT_FAILURE);
     }
+
+    // Signals management
+    signal(SIGHUP, signal_handler);
+    signal(SIGINT, signal_handler);
+    signal(SIGQUIT, signal_handler);
+    signal(SIGILL, signal_handler);
+    signal(SIGSEGV, signal_handler);
+    signal(SIGTERM, signal_handler);
 
 
     // Start client work

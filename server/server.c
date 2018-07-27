@@ -4,8 +4,40 @@ static size_t nChildren;
 static uint16_t servPort;
 static pid_t *pids;
 
-//TODO: segnali + gestisci chiusura server
+/**
+ * This function is used to capture different signals
+ * @param signal
+ * @param conn_s
+ */
+void signal_handler(int signal) {
 
+    switch (signal) {
+
+        case SIGHUP:
+            printf("\nSignal SIGHUP received: terminal closing!\n\n");
+            exit(EXIT_FAILURE);
+
+        case SIGINT:
+            printf("\nYou forced quit with signal SIGINT!\n\n");
+            exit(EXIT_FAILURE);
+
+        case SIGQUIT:
+            printf("\nYou forced quit with signal SIGQUIT!\n\n");
+            exit(EXIT_FAILURE);
+
+        case SIGILL:
+            printf("\nSignal SIGILL received: Illegal instruction!\n\n");
+            exit(EXIT_FAILURE);
+
+        case SIGSEGV:
+            printf("\nSignal SIGSEGV received: something was wrong!\n\n");
+            exit(EXIT_FAILURE);
+
+        case SIGTERM:
+            printf("\nSignal SIGTERM received!\n\n");
+            exit(EXIT_FAILURE);
+    }
+}
 
 /**
  * This is the main  function of Server; here we inizialize the connection,
@@ -100,13 +132,14 @@ int main(int argc, char *argv[]) {
         pids[i] = child_make(i, listensd, addrLen);
     }
 
-    //When SIGINT arrives (pressing of Ctrl-C) parents and children ends
-/*    if (signal(SIGINT, sig_int) == SIG_ERR)
-    {
-        fprintf(stderr, "Error in signal\n");
-        exit(1);
-    }
-*/
+    // Signals management
+    signal(SIGHUP, signal_handler);
+    signal(SIGINT, signal_handler);
+    signal(SIGQUIT, signal_handler);
+    signal(SIGILL, signal_handler);
+    signal(SIGSEGV, signal_handler);
+    signal(SIGTERM, signal_handler);
+
     for (;;)
         pause();
 
