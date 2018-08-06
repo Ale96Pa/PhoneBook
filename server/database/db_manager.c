@@ -9,7 +9,7 @@
 sqlite3 *open_connection(void)
 {
 	sqlite3 *connection;
-	int error = sqlite3_open("server/database/PhoneBook.db", &connection);
+	int error = sqlite3_open("database/PhoneBook.db", &connection);
 	if(error != SQLITE_OK)
 	{
         fprintf(stderr,"Error opening DB\n");

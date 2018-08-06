@@ -1,5 +1,6 @@
 #include "basic.h"
 #include "parsing/parsing.h"
+#include "logging/logging.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
