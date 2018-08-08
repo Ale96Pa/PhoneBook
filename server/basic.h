@@ -8,7 +8,7 @@
 
 #include "constant.h"
 
-void remove_spaces(char *restrict str_trimmed, const char *restrict str_untrimmed);
+void remove_spaces(char *str_trimmed, const char *str_untrimmed);
 ssize_t read_line(int sockd, void *vptr, size_t maxlen);
 ssize_t write_line(int sockd, const void *vptr, size_t n);
 void secure_read(int fd, char *buffer, unsigned long size);
