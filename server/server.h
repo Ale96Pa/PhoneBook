@@ -9,7 +9,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#define NUMBER_CHILD 7
+#define NUMBER_CHILD 9
 #define SERV_PORT 5193
 #define BACKLOG 10
 

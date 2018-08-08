@@ -146,7 +146,7 @@ retry:
                 printf(GREEN "\nSuccessful registration!\n" RESET);
                 exit(EXIT_SUCCESS);
             } else {
-                fprintf(stderr, "\nNOT successful registration, try again\n");
+                fprintf(stderr, "\nNOT successful registration, try again!\nMaybe you don't insert any permissions\n");
                 exit(EXIT_FAILURE);
             }
         } else {

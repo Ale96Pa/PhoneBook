@@ -40,8 +40,6 @@ void child_work(int sockfd, struct sockaddr *cliaddr)
 
         if(check_login(login, permissions, sockfd) == SUCCESS)
         {
-            //free(login);
-            //free(permissions);
             printf("Client: %s --->  ", inet_ntoa(client->sin_addr));
             printf("Successful login\n\n");
             logging(host_client, "Request: LOGIN", "Response: 200 OK");
@@ -56,7 +54,6 @@ void child_work(int sockfd, struct sockaddr *cliaddr)
             // Receive request for insert in the socket
             if(strcmp(method, "Request-method: ADD") == 0)
             {
-                //free(research);
                 printf("Client: %s --->  ", host_client);
                 printf("Insert requested ... ");
                 if(parse_add(message, data) == FAILURE)
@@ -69,14 +66,16 @@ void child_work(int sockfd, struct sockaddr *cliaddr)
                 add_record(data, sockfd);
                 printf("Successful insert\n\n");
                 logging(host_client, "Request: INSERT", "Response: 200 OK");
-                //free(data);
+                free(login);
+                free(permissions);
+                free(data);
+                free(research);
                 exit(EXIT_SUCCESS);
             }
 
             // Receive request for search in the socket
             else if(strcmp(method, "Request-method: SEARCH") == 0)
             {
-                //free(data);
                 printf("Client: %s --->  ", inet_ntoa(client->sin_addr));
                 printf("Research requested ... ");
                 if(parse_search(message, research) == FAILURE)
@@ -89,7 +88,10 @@ void child_work(int sockfd, struct sockaddr *cliaddr)
                 search_records(research->column, research->user_search, sockfd);
                 printf("Successful research\n\n");
                 logging(host_client, "Request: SEARCH", "Response: 200 OK");
-                //free(research);
+                free(login);
+                free(permissions);
+                free(data);
+                free(research);
                 exit(EXIT_SUCCESS);
 
             } else {
@@ -99,8 +101,6 @@ void child_work(int sockfd, struct sockaddr *cliaddr)
             }
 
         } else {
-            //free(research);
-            //free(data);
             printf("Client: %s --->  ", inet_ntoa(client->sin_addr));
             printf("Unsuccessful login\n\n");
             logging(host_client, "Request: LOGIN", "Response: 404 NOT FOUND");
@@ -115,7 +115,7 @@ void child_work(int sockfd, struct sockaddr *cliaddr)
             if(strcmp(method, "Request-method: REGISTER") == 0)
             {
                 printf("Client: %s --->  ", inet_ntoa(client->sin_addr));
-                printf("Registration requested\n");
+                printf("Registration requested ... ");
                 if(parse_user_register(message, login, permissions) == FAILURE)
                 {
                     fprintf(stderr, "Error\n");
@@ -126,8 +126,10 @@ void child_work(int sockfd, struct sockaddr *cliaddr)
                 register_user(login, permissions, sockfd);
                 printf("Successful registration\n\n");
                 logging(host_client, "Request: REGISTRATION", "Response: 200 OK");
-                //free(login);
-                //free(permissions);
+                free(login);
+                free(permissions);
+                free(data);
+                free(research);
                 exit(EXIT_SUCCESS);
             }
             else if(strcmp(method, "Request-method: LOGIN") == 0)
